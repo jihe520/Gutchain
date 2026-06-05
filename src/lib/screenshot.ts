@@ -1,4 +1,4 @@
-import { mapCssRectToImageCrop, type ImageSize, type Rect, type ViewportSize } from "./relay";
+import { mapCssRectToImageCrop, type ImageSize, type Rect, type ViewportSize } from "./gutchain";
 
 export interface CroppedScreenshot {
   dataUrl: string;

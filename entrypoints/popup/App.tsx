@@ -2,12 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { browser } from "wxt/browser";
 
 import {
-  RELAY_MESSAGE,
-  RELAY_SETTINGS_STORAGE_KEY,
+  GUTCHAIN_MESSAGE,
+  GUTCHAIN_SETTINGS_STORAGE_KEY,
   type PopupShareResponse,
   type PopupStateResponse,
 } from "../../src/lib/messages";
-import { DEFAULT_RELAY_SETTINGS, type RelaySettings } from "../../src/lib/relay";
+import { DEFAULT_GUTCHAIN_SETTINGS, type GutchainSettings } from "../../src/lib/gutchain";
 
 type StatusTone = "idle" | "working" | "success" | "error";
 
@@ -25,23 +25,23 @@ export function App() {
     tone: "idle",
     text: "Open an X post detail page to start.",
   });
-  const [settings, setSettings] = useState<RelaySettings>(DEFAULT_RELAY_SETTINGS);
+  const [settings, setSettings] = useState<GutchainSettings>(DEFAULT_GUTCHAIN_SETTINGS);
 
   useEffect(() => {
     let isMounted = true;
 
     Promise.all([
-      browser.runtime.sendMessage({ type: RELAY_MESSAGE.POPUP_GET_STATE }),
-      browser.storage.local.get(RELAY_SETTINGS_STORAGE_KEY),
+      browser.runtime.sendMessage({ type: GUTCHAIN_MESSAGE.POPUP_GET_STATE }),
+      browser.storage.local.get(GUTCHAIN_SETTINGS_STORAGE_KEY),
     ])
       .then(([response, storage]) => {
         if (!isMounted) return;
         const nextState = response as PopupStateResponse;
-        const savedSettings = storage[RELAY_SETTINGS_STORAGE_KEY] as RelaySettings | undefined;
+        const savedSettings = storage[GUTCHAIN_SETTINGS_STORAGE_KEY] as GutchainSettings | undefined;
 
         setState(nextState);
         setSettings({
-          ...DEFAULT_RELAY_SETTINGS,
+          ...DEFAULT_GUTCHAIN_SETTINGS,
           ...savedSettings,
         });
         setStatus({
@@ -76,7 +76,7 @@ export function App() {
     });
 
     const response = (await browser.runtime.sendMessage({
-      type: RELAY_MESSAGE.POPUP_SHARE_TO_XHS,
+      type: GUTCHAIN_MESSAGE.POPUP_SHARE_TO_XHS,
     })) as PopupShareResponse;
 
     if (!response.ok) {
@@ -93,10 +93,10 @@ export function App() {
     });
   }
 
-  async function updateSettings(nextSettings: RelaySettings) {
+  async function updateSettings(nextSettings: GutchainSettings) {
     setSettings(nextSettings);
     await browser.storage.local.set({
-      [RELAY_SETTINGS_STORAGE_KEY]: nextSettings,
+      [GUTCHAIN_SETTINGS_STORAGE_KEY]: nextSettings,
     });
   }
 
@@ -104,7 +104,7 @@ export function App() {
     <main className="popup">
       <header className="header">
         <div>
-          <p className="eyebrow">Relay</p>
+          <p className="eyebrow">Gutchain</p>
           <h1>Share to XHS</h1>
         </div>
       </header>

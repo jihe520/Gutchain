@@ -4,3 +4,4 @@ node_modules
 dist
 *.log
 agentdocs
+.DS_Store

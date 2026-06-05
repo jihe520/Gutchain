@@ -4,7 +4,7 @@ import { defineConfig } from "wxt";
 export default defineConfig({
   manifestVersion: 3,
   manifest: {
-    name: "Relay",
+    name: "Gutchain",
     description: "Share visible X posts to Xiaohongshu image-text drafts.",
     permissions: ["activeTab", "tabs", "scripting", "storage"],
     host_permissions: [
@@ -13,7 +13,7 @@ export default defineConfig({
       "https://creator.xiaohongshu.com/*"
     ],
     action: {
-      default_title: "Relay"
+      default_title: "Gutchain"
     }
   },
   vite: () => ({

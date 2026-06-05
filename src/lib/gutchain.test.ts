@@ -6,9 +6,9 @@ import {
   clampRectToViewport,
   isSupportedXStatusUrl,
   mapCssRectToImageCrop,
-} from "./relay";
+} from "./gutchain";
 
-describe("relay helpers", () => {
+describe("gutchain helpers", () => {
   it("detects supported X status URLs", () => {
     expect(isSupportedXStatusUrl("https://x.com/user/status/1234567890")).toBe(true);
     expect(isSupportedXStatusUrl("https://twitter.com/user/status/1234567890")).toBe(true);
@@ -16,8 +16,12 @@ describe("relay helpers", () => {
     expect(isSupportedXStatusUrl("https://example.com/user/status/1234567890")).toBe(false);
   });
 
-  it("builds a 20-character XHS title from normalized tweet text", () => {
+  it("builds a 20-character XHS title from the first non-empty tweet line", () => {
     expect(buildXhsTitle("  abcdefghijklmnopqrstuvwxyz  ")).toBe("abcdefghijklmnopqrst");
+    expect(buildXhsTitle("  \nFirst   line title\nsecond line")).toBe("First line title");
+    expect(buildXhsTitle("First line title that is too long\nsecond line")).toBe(
+      "First line title tha",
+    );
     expect(buildXhsTitle("")).toBe("来自 X 的分享");
   });
 

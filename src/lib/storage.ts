@@ -1,11 +1,11 @@
-import type { RelaySettings, RelaySharePayload } from "./relay";
+import type { GutchainSettings, GutchainSharePayload } from "./gutchain";
 
-export { RELAY_SETTINGS_STORAGE_KEY, RELAY_SHARE_STORAGE_KEY } from "./messages";
+export { GUTCHAIN_SETTINGS_STORAGE_KEY, GUTCHAIN_SHARE_STORAGE_KEY } from "./messages";
 
-export interface RelayShareStorageShape {
-  [key: string]: RelaySharePayload | undefined;
+export interface GutchainShareStorageShape {
+  [key: string]: GutchainSharePayload | undefined;
 }
 
-export interface RelaySettingsStorageShape {
-  [key: string]: RelaySettings | undefined;
+export interface GutchainSettingsStorageShape {
+  [key: string]: GutchainSettings | undefined;
 }

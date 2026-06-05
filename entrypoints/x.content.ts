@@ -1,7 +1,7 @@
 import { browser } from "wxt/browser";
 import { defineContentScript } from "wxt/utils/define-content-script";
 
-import { RELAY_MESSAGE } from "../src/lib/messages";
+import { GUTCHAIN_MESSAGE } from "../src/lib/messages";
 import {
   clampRectToViewport,
   isSupportedXStatusUrl,
@@ -9,13 +9,13 @@ import {
   normalizeText,
   type Rect,
   type TweetCaptureSnapshot,
-} from "../src/lib/relay";
+} from "../src/lib/gutchain";
 
 export default defineContentScript({
   matches: ["https://x.com/*", "https://twitter.com/*"],
   main() {
     browser.runtime.onMessage.addListener(async (message): Promise<unknown> => {
-      if (!isRelayMessage(message) || message.type !== RELAY_MESSAGE.X_COLLECT_TWEET) {
+      if (!isGutchainMessage(message) || message.type !== GUTCHAIN_MESSAGE.X_COLLECT_TWEET) {
         return undefined;
       }
 
@@ -26,7 +26,7 @@ export default defineContentScript({
 
 function collectVisibleTweet(): TweetCaptureSnapshot {
   if (!isSupportedXStatusUrl(window.location.href)) {
-    throw new Error("Relay only supports X/Twitter post detail pages.");
+    throw new Error("Gutchain only supports X/Twitter post detail pages.");
   }
 
   const article = findMainTweetArticle();
@@ -103,7 +103,7 @@ function domRectToRect(rect: DOMRect): Rect {
   };
 }
 
-function isRelayMessage(message: unknown): message is { type: string } {
+function isGutchainMessage(message: unknown): message is { type: string } {
   return (
     typeof message === "object" &&
     message !== null &&

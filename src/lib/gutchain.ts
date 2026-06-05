@@ -30,7 +30,7 @@ export interface TweetCaptureSnapshot {
   viewport: ViewportSize;
 }
 
-export interface RelaySharePayload {
+export interface GutchainSharePayload {
   id: string;
   tweetText: string;
   authorName: string;
@@ -43,16 +43,16 @@ export interface RelaySharePayload {
   createdAt: number;
 }
 
-export interface RelaySettings {
+export interface GutchainSettings {
   includeAuthorInBody: boolean;
 }
 
-export const DEFAULT_RELAY_SETTINGS: RelaySettings = {
+export const DEFAULT_GUTCHAIN_SETTINGS: GutchainSettings = {
   includeAuthorInBody: true,
 };
 
-export interface CreateRelayPayloadOptions {
-  settings?: RelaySettings;
+export interface CreateGutchainPayloadOptions {
+  settings?: GutchainSettings;
 }
 
 export function isSupportedXStatusUrl(url: string | undefined): boolean {
@@ -87,16 +87,20 @@ export function normalizeMultilineText(text: string): string {
 }
 
 export function buildXhsTitle(tweetText: string): string {
-  const normalized = normalizeText(tweetText);
-  if (!normalized) return "来自 X 的分享";
-  return Array.from(normalized).slice(0, 20).join("");
+  const firstLine = tweetText
+    .split(/\r?\n/)
+    .map(normalizeText)
+    .find(Boolean);
+
+  if (!firstLine) return "来自 X 的分享";
+  return Array.from(firstLine).slice(0, 20).join("");
 }
 
 export function buildXhsBody(
   tweetText: string,
   authorName: string,
   authorHandle: string,
-  settings: RelaySettings = DEFAULT_RELAY_SETTINGS,
+  settings: GutchainSettings = DEFAULT_GUTCHAIN_SETTINGS,
 ): string {
   const normalizedText = normalizeMultilineText(tweetText);
   const normalizedAuthorName = normalizeText(authorName);
@@ -152,13 +156,13 @@ export function mapCssRectToImageCrop(
   return { sx, sy, sw, sh };
 }
 
-export function createRelayPayload(
+export function createGutchainPayload(
   snapshot: TweetCaptureSnapshot,
   screenshotDataUrl: string,
   screenshotSize: ImageSize,
-  options: CreateRelayPayloadOptions = {},
-): RelaySharePayload {
-  const settings = options.settings ?? DEFAULT_RELAY_SETTINGS;
+  options: CreateGutchainPayloadOptions = {},
+): GutchainSharePayload {
+  const settings = options.settings ?? DEFAULT_GUTCHAIN_SETTINGS;
 
   return {
     id: createShareId(),

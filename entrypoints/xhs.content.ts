@@ -1,21 +1,21 @@
 import { browser } from "wxt/browser";
 import { defineContentScript } from "wxt/utils/define-content-script";
 
-import { RELAY_SHARE_STORAGE_KEY, type RelayShareStorageShape } from "../src/lib/storage";
-import type { RelaySharePayload } from "../src/lib/relay";
+import { GUTCHAIN_SHARE_STORAGE_KEY, type GutchainShareStorageShape } from "../src/lib/storage";
+import type { GutchainSharePayload } from "../src/lib/gutchain";
 
 export default defineContentScript({
   matches: ["https://creator.xiaohongshu.com/*"],
   main() {
-    void fillXhsDraftFromLatestRelayShare();
+    void fillXhsDraftFromLatestGutchainShare();
   },
 });
 
-async function fillXhsDraftFromLatestRelayShare(): Promise<void> {
+async function fillXhsDraftFromLatestGutchainShare(): Promise<void> {
   const payload = await getLatestPayload();
   if (!payload) return;
 
-  showRelayStatus("Preparing Xiaohongshu draft...");
+  showGutchainStatus("Preparing Xiaohongshu draft...");
 
   try {
     await ensureImageTextMode();
@@ -23,19 +23,19 @@ async function fillXhsDraftFromLatestRelayShare(): Promise<void> {
     await sleep(5000);
     await fillTitle(payload.xhsTitle);
     await fillBody(payload.xhsBody);
-    await browser.storage.local.remove(RELAY_SHARE_STORAGE_KEY);
-    showRelayStatus("Relay draft filled. Review it before publishing.", "success");
-    setTimeout(hideRelayStatus, 5000);
+    await browser.storage.local.remove(GUTCHAIN_SHARE_STORAGE_KEY);
+    showGutchainStatus("Gutchain draft filled. Review it before publishing.", "success");
+    setTimeout(hideGutchainStatus, 5000);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown Xiaohongshu fill error.";
-    showRelayStatus(`Relay is waiting: ${message}`, "error");
+    showGutchainStatus(`Gutchain is waiting: ${message}`, "error");
   }
 }
 
-async function getLatestPayload(): Promise<RelaySharePayload | null> {
-  const result = await browser.storage.local.get(RELAY_SHARE_STORAGE_KEY);
-  return ((result as RelayShareStorageShape)[RELAY_SHARE_STORAGE_KEY] ?? null) as
-    | RelaySharePayload
+async function getLatestPayload(): Promise<GutchainSharePayload | null> {
+  const result = await browser.storage.local.get(GUTCHAIN_SHARE_STORAGE_KEY);
+  return ((result as GutchainShareStorageShape)[GUTCHAIN_SHARE_STORAGE_KEY] ?? null) as
+    | GutchainSharePayload
     | null;
 }
 
@@ -59,7 +59,7 @@ async function ensureImageTextMode(): Promise<void> {
   uploadButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
 }
 
-async function uploadScreenshot(payload: RelaySharePayload): Promise<void> {
+async function uploadScreenshot(payload: GutchainSharePayload): Promise<void> {
   const fileInput = await waitFor<HTMLInputElement>(
     () => document.querySelector('input[type="file"]'),
     {
@@ -68,7 +68,7 @@ async function uploadScreenshot(payload: RelaySharePayload): Promise<void> {
     },
   );
   const dataTransfer = new DataTransfer();
-  dataTransfer.items.add(dataUrlToFile(payload.screenshotDataUrl, `relay-${payload.id}.png`));
+  dataTransfer.items.add(dataUrlToFile(payload.screenshotDataUrl, `gutchain-${payload.id}.png`));
   fileInput.files = dataTransfer.files;
   fileInput.dispatchEvent(new Event("input", { bubbles: true }));
   fileInput.dispatchEvent(new Event("change", { bubbles: true }));
@@ -177,10 +177,10 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function showRelayStatus(message: string, tone: "info" | "success" | "error" = "info"): void {
-  const existing = document.getElementById("relay-xhs-status");
+function showGutchainStatus(message: string, tone: "info" | "success" | "error" = "info"): void {
+  const existing = document.getElementById("gutchain-xhs-status");
   const element = existing ?? document.createElement("div");
-  element.id = "relay-xhs-status";
+  element.id = "gutchain-xhs-status";
   element.textContent = message;
   element.setAttribute("role", "status");
   element.style.cssText = [
@@ -200,6 +200,6 @@ function showRelayStatus(message: string, tone: "info" | "success" | "error" = "
   if (!existing) document.documentElement.appendChild(element);
 }
 
-function hideRelayStatus(): void {
-  document.getElementById("relay-xhs-status")?.remove();
+function hideGutchainStatus(): void {
+  document.getElementById("gutchain-xhs-status")?.remove();
 }

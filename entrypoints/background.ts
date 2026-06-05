@@ -2,32 +2,32 @@ import { browser } from "wxt/browser";
 import { defineBackground } from "wxt/utils/define-background";
 
 import {
-  RELAY_MESSAGE,
-  RELAY_SETTINGS_STORAGE_KEY,
-  RELAY_SHARE_STORAGE_KEY,
-  RELAY_XHS_PUBLISH_URL,
+  GUTCHAIN_MESSAGE,
+  GUTCHAIN_SETTINGS_STORAGE_KEY,
+  GUTCHAIN_SHARE_STORAGE_KEY,
+  GUTCHAIN_XHS_PUBLISH_URL,
   type PopupShareResponse,
   type PopupStateResponse,
 } from "../src/lib/messages";
 import {
-  createRelayPayload,
-  DEFAULT_RELAY_SETTINGS,
+  createGutchainPayload,
+  DEFAULT_GUTCHAIN_SETTINGS,
   isSupportedXStatusUrl,
   type Rect,
-  type RelaySettings,
+  type GutchainSettings,
   type TweetCaptureSnapshot,
-} from "../src/lib/relay";
+} from "../src/lib/gutchain";
 import { cropScreenshotDataUrl } from "../src/lib/screenshot";
 
 export default defineBackground(() => {
   browser.runtime.onMessage.addListener(async (message): Promise<unknown> => {
-    if (!isRelayMessage(message)) return undefined;
+    if (!isGutchainMessage(message)) return undefined;
 
-    if (message.type === RELAY_MESSAGE.POPUP_GET_STATE) {
+    if (message.type === GUTCHAIN_MESSAGE.POPUP_GET_STATE) {
       return getPopupState();
     }
 
-    if (message.type === RELAY_MESSAGE.POPUP_SHARE_TO_XHS) {
+    if (message.type === GUTCHAIN_MESSAGE.POPUP_SHARE_TO_XHS) {
       return shareActiveTweetToXhs();
     }
 
@@ -87,17 +87,17 @@ async function shareActiveTweetToXhs(): Promise<PopupShareResponse> {
       snapshot.visibleRect,
       snapshot.viewport,
     );
-    const payload = createRelayPayload(snapshot, cropped.dataUrl, cropped.size, {
-      settings: await getRelaySettings(),
+    const payload = createGutchainPayload(snapshot, cropped.dataUrl, cropped.size, {
+      settings: await getGutchainSettings(),
     });
 
     await browser.storage.local.set({
-      [RELAY_SHARE_STORAGE_KEY]: payload,
+      [GUTCHAIN_SHARE_STORAGE_KEY]: payload,
     });
 
     const xhsTab = await browser.tabs.create({
       active: true,
-      url: RELAY_XHS_PUBLISH_URL,
+      url: GUTCHAIN_XHS_PUBLISH_URL,
     });
 
     return {
@@ -108,7 +108,7 @@ async function shareActiveTweetToXhs(): Promise<PopupShareResponse> {
   } catch (error) {
     return {
       ok: false,
-      error: error instanceof Error ? error.message : "Unknown Relay error.",
+      error: error instanceof Error ? error.message : "Unknown Gutchain error.",
     };
   }
 }
@@ -122,12 +122,12 @@ async function getActiveTab() {
   return tab;
 }
 
-async function getRelaySettings(): Promise<RelaySettings> {
-  const result = await browser.storage.local.get(RELAY_SETTINGS_STORAGE_KEY);
-  const saved = result[RELAY_SETTINGS_STORAGE_KEY] as RelaySettings | undefined;
+async function getGutchainSettings(): Promise<GutchainSettings> {
+  const result = await browser.storage.local.get(GUTCHAIN_SETTINGS_STORAGE_KEY);
+  const saved = result[GUTCHAIN_SETTINGS_STORAGE_KEY] as GutchainSettings | undefined;
 
   return {
-    ...DEFAULT_RELAY_SETTINGS,
+    ...DEFAULT_GUTCHAIN_SETTINGS,
     ...saved,
   };
 }
@@ -135,7 +135,7 @@ async function getRelaySettings(): Promise<RelaySettings> {
 async function collectTweetSnapshot(tabId: number): Promise<TweetCaptureSnapshot> {
   try {
     const snapshot = (await browser.tabs.sendMessage(tabId, {
-      type: RELAY_MESSAGE.X_COLLECT_TWEET,
+      type: GUTCHAIN_MESSAGE.X_COLLECT_TWEET,
     })) as TweetCaptureSnapshot | undefined;
 
     if (snapshot) return snapshot;
@@ -209,7 +209,7 @@ function collectVisibleTweetSnapshotInPage(): TweetCaptureSnapshot {
   }
 
   if (!isSupportedXStatusUrl(window.location.href)) {
-    throw new Error("Relay only supports X/Twitter post detail pages.");
+    throw new Error("Gutchain only supports X/Twitter post detail pages.");
   }
 
   const main = document.querySelector("main") ?? document.body;
@@ -253,7 +253,7 @@ function collectVisibleTweetSnapshotInPage(): TweetCaptureSnapshot {
   };
 }
 
-function isRelayMessage(message: unknown): message is { type: string } {
+function isGutchainMessage(message: unknown): message is { type: string } {
   return (
     typeof message === "object" &&
     message !== null &&
