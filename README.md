@@ -23,3 +23,11 @@
 <p align="center">
   <img src="docs/memo.jpg" alt="Gutchain 备忘录" width="720">
 </p>
+
+## Install
+
+1. 前往 [Releases](../../releases) 下载最新的 `.zip` 文件
+2. 解压到本地任意文件夹
+3. 打开 Chrome，地址栏输入 `chrome://extensions`，回车
+4. 打开右上角 **开发者模式**
+5. 点击 **加载已解压的扩展程序**，选择解压后的文件夹
