@@ -2,10 +2,12 @@
   "name": "gutchain",
   "version": "0.0.1",
   "private": true,
+  "packageManager": "pnpm@10.9.0",
   "type": "module",
   "scripts": {
     "dev": "wxt",
     "build": "wxt build",
+    "package": "wxt zip",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },

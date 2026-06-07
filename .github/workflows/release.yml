@@ -1,0 +1,76 @@
+name: Package release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    name: Build extension package
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.9.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+
+      - name: Package extension
+        run: pnpm run package
+
+      - name: Find package
+        id: extension_package
+        shell: bash
+        run: |
+          package_path="$(find .output -maxdepth 1 -type f -name '*.zip' | head -n 1)"
+
+          if [[ -z "$package_path" ]]; then
+            echo "No package zip found in .output." >&2
+            exit 1
+          fi
+
+          echo "path=$package_path" >> "$GITHUB_OUTPUT"
+          echo "name=$(basename "$package_path")" >> "$GITHUB_OUTPUT"
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.extension_package.outputs.name }}
+          path: ${{ steps.extension_package.outputs.path }}
+
+      - name: Publish GitHub release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PACKAGE_PATH: ${{ steps.extension_package.outputs.path }}
+        run: |
+          tag="${GITHUB_REF_NAME}"
+
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" "$PACKAGE_PATH" --clobber
+          else
+            gh release create "$tag" "$PACKAGE_PATH" --title "$tag" --generate-notes
+          fi
