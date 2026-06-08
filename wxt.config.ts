@@ -5,12 +5,13 @@ export default defineConfig({
   manifestVersion: 3,
   manifest: {
     name: "Gutchain",
-    description: "Share visible X posts to Xiaohongshu image-text drafts.",
+    description: "Share visible X posts to Xiaohongshu drafts or WeChat-ready images.",
     permissions: ["activeTab", "tabs", "scripting", "storage"],
     host_permissions: [
       "https://x.com/*",
       "https://twitter.com/*",
-      "https://creator.xiaohongshu.com/*"
+      "https://creator.xiaohongshu.com/*",
+      "https://mp.weixin.qq.com/*"
     ],
     icons: {
       16: "icon/16.png",
