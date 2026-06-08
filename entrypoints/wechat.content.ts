@@ -53,9 +53,8 @@ async function uploadWechatImageFromLatestGutchainShare(): Promise<void> {
 
 async function getLatestPayload(): Promise<GutchainWechatSharePayload | null> {
   const result = await browser.storage.local.get(GUTCHAIN_WECHAT_SHARE_STORAGE_KEY);
-  return (
-    (result as GutchainWechatShareStorageShape)[GUTCHAIN_WECHAT_SHARE_STORAGE_KEY] ?? null
-  ) as GutchainWechatSharePayload | null;
+  return ((result as GutchainWechatShareStorageShape)[GUTCHAIN_WECHAT_SHARE_STORAGE_KEY] ??
+    null) as GutchainWechatSharePayload | null;
 }
 
 async function uploadWechatImage(payload: GutchainWechatSharePayload): Promise<void> {
@@ -100,24 +99,18 @@ async function fillWechatMetadata(payload: GutchainWechatSharePayload): Promise<
   const title = payload.xhsTitle || "来自 X 的分享";
   const description = payload.xhsBody || payload.tweetText;
 
-  const titleField = await waitFor(
-    () => findEditableField(TITLE_FIELD_SELECTORS),
-    {
-      timeout: 30000,
-      errorMessage: "could not find the WeChat sticker title field.",
-    },
-  );
+  const titleField = await waitFor(() => findEditableField(TITLE_FIELD_SELECTORS), {
+    timeout: 30000,
+    errorMessage: "could not find the WeChat sticker title field.",
+  });
   setEditableValue(titleField, title);
 
   if (!description) return;
 
-  const descriptionField = await waitFor(
-    () => findEditableField(DESCRIPTION_FIELD_SELECTORS),
-    {
-      timeout: 30000,
-      errorMessage: "could not find the WeChat sticker description field.",
-    },
-  );
+  const descriptionField = await waitFor(() => findEditableField(DESCRIPTION_FIELD_SELECTORS), {
+    timeout: 30000,
+    errorMessage: "could not find the WeChat sticker description field.",
+  });
   setEditableValue(descriptionField, description);
 }
 
@@ -208,8 +201,9 @@ function isLikelyWechatStickerEditor(): boolean {
   return getAccessibleDocuments().some(
     (doc) =>
       /贴图/.test(doc.title) ||
-      Array.from(doc.querySelectorAll<HTMLElement>(".appmsg_editor, .sticker, [class*='sticker']"))
-        .some(isVisibleElement),
+      Array.from(
+        doc.querySelectorAll<HTMLElement>(".appmsg_editor, .sticker, [class*='sticker']"),
+      ).some(isVisibleElement),
   );
 }
 

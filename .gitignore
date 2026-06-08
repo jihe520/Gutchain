@@ -5,3 +5,4 @@ dist
 *.log
 agentdocs
 .DS_Store
+.cache

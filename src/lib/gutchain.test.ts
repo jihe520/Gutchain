@@ -46,17 +46,11 @@ describe("gutchain helpers", () => {
 
   it("clamps the tweet rect to the visible viewport", () => {
     expect(
-      clampRectToViewport(
-        { x: -10, y: 20, width: 100, height: 200 },
-        { width: 80, height: 120 },
-      ),
+      clampRectToViewport({ x: -10, y: 20, width: 100, height: 200 }, { width: 80, height: 120 }),
     ).toEqual({ x: 0, y: 20, width: 80, height: 100 });
 
     expect(
-      clampRectToViewport(
-        { x: 90, y: 0, width: 20, height: 20 },
-        { width: 80, height: 120 },
-      ),
+      clampRectToViewport({ x: 90, y: 0, width: 20, height: 20 }, { width: 80, height: 120 }),
     ).toBeNull();
   });
 

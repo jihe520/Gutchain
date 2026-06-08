@@ -1,7 +1,6 @@
 import type { GutchainSharePayload } from "./gutchain";
 
-export const GUTCHAIN_WECHAT_STICKER_PUBLISH_BASE_URL =
-  "https://mp.weixin.qq.com/cgi-bin/appmsg";
+export const GUTCHAIN_WECHAT_STICKER_PUBLISH_BASE_URL = "https://mp.weixin.qq.com/cgi-bin/appmsg";
 
 export interface GutchainWechatSharePayload extends GutchainSharePayload {
   wechatStickerDataUrl: string;

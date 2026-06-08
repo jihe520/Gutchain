@@ -1,4 +1,4 @@
-import { mapCssRectToImageCrop, type ImageSize, type Rect, type ViewportSize } from "./gutchain";
+import { type ImageSize, mapCssRectToImageCrop, type Rect, type ViewportSize } from "./gutchain";
 
 export interface CroppedScreenshot {
   dataUrl: string;
@@ -24,17 +24,7 @@ export async function cropScreenshotDataUrl(
     throw new Error("Unable to create screenshot crop canvas.");
   }
 
-  context.drawImage(
-    bitmap,
-    crop.sx,
-    crop.sy,
-    crop.sw,
-    crop.sh,
-    0,
-    0,
-    crop.sw,
-    crop.sh,
-  );
+  context.drawImage(bitmap, crop.sx, crop.sy, crop.sw, crop.sh, 0, 0, crop.sw, crop.sh);
   bitmap.close();
 
   const croppedBlob = await canvas.convertToBlob({ type: "image/png" });

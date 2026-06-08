@@ -11,14 +11,14 @@ export default defineConfig({
       "https://x.com/*",
       "https://twitter.com/*",
       "https://creator.xiaohongshu.com/*",
-      "https://mp.weixin.qq.com/*"
+      "https://mp.weixin.qq.com/*",
     ],
     icons: {
       16: "icon/16.png",
       32: "icon/32.png",
       48: "icon/48.png",
       96: "icon/96.png",
-      128: "icon/128.png"
+      128: "icon/128.png",
     },
     action: {
       default_title: "Gutchain",
@@ -27,11 +27,11 @@ export default defineConfig({
         32: "icon/32.png",
         48: "icon/48.png",
         96: "icon/96.png",
-        128: "icon/128.png"
-      }
-    }
+        128: "icon/128.png",
+      },
+    },
   },
   vite: () => ({
-    plugins: [react()]
-  })
+    plugins: [react()],
+  }),
 });

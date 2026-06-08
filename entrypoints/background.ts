@@ -1,6 +1,13 @@
 import { browser } from "wxt/browser";
 import { defineBackground } from "wxt/utils/define-background";
-
+import {
+  createGutchainPayload,
+  DEFAULT_GUTCHAIN_SETTINGS,
+  type GutchainSettings,
+  isSupportedXStatusUrl,
+  type Rect,
+  type TweetCaptureSnapshot,
+} from "../src/lib/gutchain";
 import {
   GUTCHAIN_MESSAGE,
   GUTCHAIN_SETTINGS_STORAGE_KEY,
@@ -11,19 +18,8 @@ import {
   type PopupShareResponse,
   type PopupStateResponse,
 } from "../src/lib/messages";
-import {
-  createGutchainPayload,
-  DEFAULT_GUTCHAIN_SETTINGS,
-  isSupportedXStatusUrl,
-  type Rect,
-  type GutchainSettings,
-  type TweetCaptureSnapshot,
-} from "../src/lib/gutchain";
 import { cropScreenshotDataUrl } from "../src/lib/screenshot";
-import {
-  buildWechatStickerPublishUrl,
-  createGutchainWechatSharePayload,
-} from "../src/lib/wechat";
+import { buildWechatStickerPublishUrl, createGutchainWechatSharePayload } from "../src/lib/wechat";
 
 export default defineBackground(() => {
   browser.runtime.onMessage.addListener((message, _sender, sendResponse) => {

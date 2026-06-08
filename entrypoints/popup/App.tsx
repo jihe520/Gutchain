@@ -1,13 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { browser } from "wxt/browser";
-
+import { DEFAULT_GUTCHAIN_SETTINGS, type GutchainSettings } from "../../src/lib/gutchain";
 import {
   GUTCHAIN_MESSAGE,
   GUTCHAIN_SETTINGS_STORAGE_KEY,
   type PopupShareResponse,
   type PopupStateResponse,
 } from "../../src/lib/messages";
-import { DEFAULT_GUTCHAIN_SETTINGS, type GutchainSettings } from "../../src/lib/gutchain";
 
 type StatusTone = "idle" | "working" | "success" | "error";
 type WorkingTarget = "xhs" | "wechat" | null;
@@ -39,11 +38,15 @@ export function App() {
       .then(([response, storage]) => {
         if (!isMounted) return;
         if (!isPopupStateResponse(response)) {
-          throw new Error("Gutchain background did not respond. Reload the extension and try again.");
+          throw new Error(
+            "Gutchain background did not respond. Reload the extension and try again.",
+          );
         }
 
         const nextState = response;
-        const savedSettings = storage[GUTCHAIN_SETTINGS_STORAGE_KEY] as GutchainSettings | undefined;
+        const savedSettings = storage[GUTCHAIN_SETTINGS_STORAGE_KEY] as
+          | GutchainSettings
+          | undefined;
 
         setState(nextState);
         setSettings({
@@ -54,7 +57,7 @@ export function App() {
           tone: nextState.isSupported ? "idle" : "error",
           text: nextState.isSupported
             ? "Ready to share this post."
-            : nextState.reason ?? "This page is not supported.",
+            : (nextState.reason ?? "This page is not supported."),
         });
       })
       .catch((error) => {
