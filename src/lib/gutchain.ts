@@ -87,10 +87,7 @@ export function normalizeMultilineText(text: string): string {
 }
 
 export function buildXhsTitle(tweetText: string): string {
-  const firstLine = tweetText
-    .split(/\r?\n/)
-    .map(normalizeText)
-    .find(Boolean);
+  const firstLine = tweetText.split(/\r?\n/).map(normalizeText).find(Boolean);
 
   if (!firstLine) return "来自 X 的分享";
   return Array.from(firstLine).slice(0, 20).join("");

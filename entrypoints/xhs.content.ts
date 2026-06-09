@@ -1,8 +1,7 @@
 import { browser } from "wxt/browser";
 import { defineContentScript } from "wxt/utils/define-content-script";
-
-import { GUTCHAIN_SHARE_STORAGE_KEY, type GutchainShareStorageShape } from "../src/lib/storage";
 import type { GutchainSharePayload } from "../src/lib/gutchain";
+import { GUTCHAIN_SHARE_STORAGE_KEY, type GutchainShareStorageShape } from "../src/lib/storage";
 
 export default defineContentScript({
   matches: ["https://creator.xiaohongshu.com/*"],
@@ -34,9 +33,8 @@ async function fillXhsDraftFromLatestGutchainShare(): Promise<void> {
 
 async function getLatestPayload(): Promise<GutchainSharePayload | null> {
   const result = await browser.storage.local.get(GUTCHAIN_SHARE_STORAGE_KEY);
-  return ((result as GutchainShareStorageShape)[GUTCHAIN_SHARE_STORAGE_KEY] ?? null) as
-    | GutchainSharePayload
-    | null;
+  return ((result as GutchainShareStorageShape)[GUTCHAIN_SHARE_STORAGE_KEY] ??
+    null) as GutchainSharePayload | null;
 }
 
 async function ensureImageTextMode(): Promise<void> {

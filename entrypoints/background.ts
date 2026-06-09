@@ -1,39 +1,63 @@
 import { browser } from "wxt/browser";
 import { defineBackground } from "wxt/utils/define-background";
-
+import {
+  createGutchainPayload,
+  DEFAULT_GUTCHAIN_SETTINGS,
+  type GutchainSettings,
+  isSupportedXStatusUrl,
+  type Rect,
+  type TweetCaptureSnapshot,
+} from "../src/lib/gutchain";
 import {
   GUTCHAIN_MESSAGE,
   GUTCHAIN_SETTINGS_STORAGE_KEY,
   GUTCHAIN_SHARE_STORAGE_KEY,
+  GUTCHAIN_WECHAT_PUBLISH_URL,
+  GUTCHAIN_WECHAT_SHARE_STORAGE_KEY,
   GUTCHAIN_XHS_PUBLISH_URL,
   type PopupShareResponse,
   type PopupStateResponse,
 } from "../src/lib/messages";
-import {
-  createGutchainPayload,
-  DEFAULT_GUTCHAIN_SETTINGS,
-  isSupportedXStatusUrl,
-  type Rect,
-  type GutchainSettings,
-  type TweetCaptureSnapshot,
-} from "../src/lib/gutchain";
 import { cropScreenshotDataUrl } from "../src/lib/screenshot";
+import { buildWechatStickerPublishUrl, createGutchainWechatSharePayload } from "../src/lib/wechat";
 
 export default defineBackground(() => {
-  browser.runtime.onMessage.addListener(async (message): Promise<unknown> => {
-    if (!isGutchainMessage(message)) return undefined;
+  browser.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+    if (!isGutchainMessage(message)) return false;
 
-    if (message.type === GUTCHAIN_MESSAGE.POPUP_GET_STATE) {
-      return getPopupState();
-    }
+    void handleGutchainMessage(message)
+      .then((response) => {
+        sendResponse(response);
+      })
+      .catch((error) => {
+        sendResponse({
+          ok: false,
+          error: error instanceof Error ? error.message : "Unknown Gutchain background error.",
+        });
+      });
 
-    if (message.type === GUTCHAIN_MESSAGE.POPUP_SHARE_TO_XHS) {
-      return shareActiveTweetToXhs();
-    }
-
-    return undefined;
+    return true;
   });
 });
+
+async function handleGutchainMessage(message: { type: string }): Promise<unknown> {
+  if (message.type === GUTCHAIN_MESSAGE.POPUP_GET_STATE) {
+    return getPopupState();
+  }
+
+  if (message.type === GUTCHAIN_MESSAGE.POPUP_SHARE_TO_XHS) {
+    return shareActiveTweetToXhs();
+  }
+
+  if (message.type === GUTCHAIN_MESSAGE.POPUP_SHARE_TO_WECHAT) {
+    return shareActiveTweetToWechat();
+  }
+
+  return {
+    ok: false,
+    error: `Unsupported Gutchain message: ${message.type}`,
+  };
+}
 
 async function getPopupState(): Promise<PopupStateResponse> {
   const tab = await getActiveTab();
@@ -62,34 +86,7 @@ async function getPopupState(): Promise<PopupStateResponse> {
 
 async function shareActiveTweetToXhs(): Promise<PopupShareResponse> {
   try {
-    const tab = await getActiveTab();
-    if (!tab?.id || !isSupportedXStatusUrl(tab.url)) {
-      return {
-        ok: false,
-        error: "Please open an X/Twitter post detail page first.",
-      };
-    }
-
-    const snapshot = await collectTweetSnapshot(tab.id);
-
-    if (!snapshot?.visibleRect || !snapshot.viewport) {
-      return {
-        ok: false,
-        error: "Could not find a visible X post on this page.",
-      };
-    }
-
-    const fullScreenshotDataUrl = await browser.tabs.captureVisibleTab(tab.windowId, {
-      format: "png",
-    });
-    const cropped = await cropScreenshotDataUrl(
-      fullScreenshotDataUrl,
-      snapshot.visibleRect,
-      snapshot.viewport,
-    );
-    const payload = createGutchainPayload(snapshot, cropped.dataUrl, cropped.size, {
-      settings: await getGutchainSettings(),
-    });
+    const payload = await captureActiveTweetPayload();
 
     await browser.storage.local.set({
       [GUTCHAIN_SHARE_STORAGE_KEY]: payload,
@@ -113,6 +110,59 @@ async function shareActiveTweetToXhs(): Promise<PopupShareResponse> {
   }
 }
 
+async function shareActiveTweetToWechat(): Promise<PopupShareResponse> {
+  try {
+    const payload = await captureActiveTweetPayload();
+    const wechatPayload = createGutchainWechatSharePayload(payload);
+
+    await browser.storage.local.set({
+      [GUTCHAIN_WECHAT_SHARE_STORAGE_KEY]: wechatPayload,
+    });
+
+    const wechatTab = await browser.tabs.create({
+      active: true,
+      url: await getWechatPublishUrl(),
+    });
+
+    return {
+      ok: true,
+      payloadId: payload.id,
+      wechatTabId: wechatTab.id,
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : "Unknown WeChat share error.",
+    };
+  }
+}
+
+async function captureActiveTweetPayload() {
+  const tab = await getActiveTab();
+  if (!tab?.id || !isSupportedXStatusUrl(tab.url)) {
+    throw new Error("Please open an X/Twitter post detail page first.");
+  }
+
+  const snapshot = await collectTweetSnapshot(tab.id);
+
+  if (!snapshot?.visibleRect || !snapshot.viewport) {
+    throw new Error("Could not find a visible X post on this page.");
+  }
+
+  const fullScreenshotDataUrl = await browser.tabs.captureVisibleTab(tab.windowId, {
+    format: "png",
+  });
+  const cropped = await cropScreenshotDataUrl(
+    fullScreenshotDataUrl,
+    snapshot.visibleRect,
+    snapshot.viewport,
+  );
+
+  return createGutchainPayload(snapshot, cropped.dataUrl, cropped.size, {
+    settings: await getGutchainSettings(),
+  });
+}
+
 async function getActiveTab() {
   const [tab] = await browser.tabs.query({
     active: true,
@@ -120,6 +170,27 @@ async function getActiveTab() {
   });
 
   return tab;
+}
+
+async function getWechatPublishUrl(): Promise<string> {
+  const tabs = await browser.tabs.query({
+    url: "https://mp.weixin.qq.com/*",
+  });
+  const token = tabs.map((tab) => extractWechatToken(tab.url)).find(Boolean);
+
+  if (!token) return GUTCHAIN_WECHAT_PUBLISH_URL;
+
+  return buildWechatStickerPublishUrl(token);
+}
+
+function extractWechatToken(url: string | undefined): string | null {
+  if (!url) return null;
+
+  try {
+    return new URL(url).searchParams.get("token");
+  } catch {
+    return null;
+  }
 }
 
 async function getGutchainSettings(): Promise<GutchainSettings> {

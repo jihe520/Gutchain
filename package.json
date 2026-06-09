@@ -9,7 +9,13 @@
     "build": "wxt build",
     "package": "wxt zip",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "format": "biome format --write",
+    "format:check": "biome format",
+    "lint": "biome lint",
+    "lint:fix": "biome lint --write",
+    "check": "biome check",
+    "check:fix": "biome check --write"
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
@@ -17,6 +23,7 @@
     "react-dom": "latest"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.4.16",
     "@types/chrome": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",

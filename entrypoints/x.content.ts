@@ -1,7 +1,5 @@
 import { browser } from "wxt/browser";
 import { defineContentScript } from "wxt/utils/define-content-script";
-
-import { GUTCHAIN_MESSAGE } from "../src/lib/messages";
 import {
   clampRectToViewport,
   isSupportedXStatusUrl,
@@ -10,6 +8,7 @@ import {
   type Rect,
   type TweetCaptureSnapshot,
 } from "../src/lib/gutchain";
+import { GUTCHAIN_MESSAGE } from "../src/lib/messages";
 
 export default defineContentScript({
   matches: ["https://x.com/*", "https://twitter.com/*"],
@@ -60,9 +59,7 @@ function collectVisibleTweet(): TweetCaptureSnapshot {
 
 function findMainTweetArticle(): HTMLElement | null {
   const main = document.querySelector("main") ?? document.body;
-  const articles = Array.from(
-    main.querySelectorAll<HTMLElement>('article[data-testid="tweet"]'),
-  );
+  const articles = Array.from(main.querySelectorAll<HTMLElement>('article[data-testid="tweet"]'));
 
   return articles.find(isVisibleElement) ?? null;
 }
