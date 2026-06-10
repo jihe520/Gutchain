@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { browser } from "wxt/browser";
-import { DEFAULT_GUTCHAIN_SETTINGS, type GutchainSettings } from "../../src/lib/gutchain";
+import {
+  DEFAULT_GUTCHAIN_SETTINGS,
+  type GutchainSettings,
+  normalizeGutchainSettings,
+} from "../../src/lib/gutchain";
 import {
   GUTCHAIN_MESSAGE,
   GUTCHAIN_SETTINGS_STORAGE_KEY,
@@ -49,10 +53,7 @@ export function App() {
           | undefined;
 
         setState(nextState);
-        setSettings({
-          ...DEFAULT_GUTCHAIN_SETTINGS,
-          ...savedSettings,
-        });
+        setSettings(normalizeGutchainSettings(savedSettings));
         setStatus({
           tone: nextState.isSupported ? "idle" : "error",
           text: nextState.isSupported
@@ -149,6 +150,10 @@ export function App() {
     });
   }
 
+  async function openOptionsPage() {
+    await browser.runtime.openOptionsPage();
+  }
+
   return (
     <main className="popup">
       <header className="header">
@@ -156,6 +161,9 @@ export function App() {
           <p className="eyebrow">Gutchain</p>
           <h1>Share X Post</h1>
         </div>
+        <button className="settings-button" onClick={openOptionsPage} type="button">
+          Settings
+        </button>
       </header>
 
       <div className="action-stack">

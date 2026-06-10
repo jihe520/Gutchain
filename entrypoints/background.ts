@@ -2,9 +2,9 @@ import { browser } from "wxt/browser";
 import { defineBackground } from "wxt/utils/define-background";
 import {
   createGutchainPayload,
-  DEFAULT_GUTCHAIN_SETTINGS,
   type GutchainSettings,
   isSupportedXStatusUrl,
+  normalizeGutchainSettings,
   type Rect,
   type TweetCaptureSnapshot,
 } from "../src/lib/gutchain";
@@ -18,7 +18,7 @@ import {
   type PopupShareResponse,
   type PopupStateResponse,
 } from "../src/lib/messages";
-import { cropScreenshotDataUrl } from "../src/lib/screenshot";
+import { cropScreenshotDataUrl, frameScreenshotDataUrl } from "../src/lib/screenshot";
 import { buildWechatStickerPublishUrl, createGutchainWechatSharePayload } from "../src/lib/wechat";
 
 export default defineBackground(() => {
@@ -152,14 +152,16 @@ async function captureActiveTweetPayload() {
   const fullScreenshotDataUrl = await browser.tabs.captureVisibleTab(tab.windowId, {
     format: "png",
   });
+  const settings = await getGutchainSettings();
   const cropped = await cropScreenshotDataUrl(
     fullScreenshotDataUrl,
     snapshot.visibleRect,
     snapshot.viewport,
   );
+  const framed = await frameScreenshotDataUrl(cropped.dataUrl, settings.screenshotFramePreset);
 
-  return createGutchainPayload(snapshot, cropped.dataUrl, cropped.size, {
-    settings: await getGutchainSettings(),
+  return createGutchainPayload(snapshot, framed.dataUrl, framed.size, {
+    settings,
   });
 }
 
@@ -197,10 +199,7 @@ async function getGutchainSettings(): Promise<GutchainSettings> {
   const result = await browser.storage.local.get(GUTCHAIN_SETTINGS_STORAGE_KEY);
   const saved = result[GUTCHAIN_SETTINGS_STORAGE_KEY] as GutchainSettings | undefined;
 
-  return {
-    ...DEFAULT_GUTCHAIN_SETTINGS,
-    ...saved,
-  };
+  return normalizeGutchainSettings(saved);
 }
 
 async function collectTweetSnapshot(tabId: number): Promise<TweetCaptureSnapshot> {
