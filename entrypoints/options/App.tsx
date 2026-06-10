@@ -18,6 +18,13 @@ interface FramePreset {
   className: string;
 }
 
+interface SocialLink {
+  name: string;
+  description: string;
+  href: string;
+  accent: string;
+}
+
 const FRAME_PRESETS: FramePreset[] = [
   {
     id: "clean",
@@ -46,6 +53,39 @@ const FRAME_PRESETS: FramePreset[] = [
     description: "Paper edge",
     accent: "#1f1f1d",
     className: "frame-ink",
+  },
+];
+
+const SOCIAL_LINKS: SocialLink[] = [
+  {
+    name: "官网",
+    description: "gutchain.fun",
+    href: "https://gutchain.fun",
+    accent: "#e42d48",
+  },
+  {
+    name: "GitHub",
+    description: "Repo",
+    href: "https://github.com/jihe520/Gutchain",
+    accent: "#171717",
+  },
+  {
+    name: "X",
+    description: "@EqbymCi",
+    href: "https://x.com/EqbymCi",
+    accent: "#111111",
+  },
+  {
+    name: "小红书",
+    description: "Profile",
+    href: "https://www.xiaohongshu.com/user/profile/647a0857000000002a037c03",
+    accent: "#ff2442",
+  },
+  {
+    name: "哔哩哔哩",
+    description: "Bilibili",
+    href: "https://space.bilibili.com/400340982",
+    accent: "#00a1d6",
   },
 ];
 
@@ -204,10 +244,43 @@ export function App() {
             />
             <span>Add author to XHS body</span>
           </label>
+
+          <section className="social-panel" aria-label="Gutchain social links">
+            <div>
+              <p className={EYEBROW_CLASS}>Community</p>
+              <h2 className={`${HEADING_CLASS} text-lg leading-[1.1]`}>Follow Gutchain</h2>
+            </div>
+            <div className="social-grid">
+              {SOCIAL_LINKS.map((link) => (
+                <a
+                  className="social-link"
+                  href={link.href}
+                  key={link.name}
+                  rel="noopener noreferrer"
+                  style={{ "--social-accent": link.accent } as CSSProperties}
+                  target="_blank"
+                >
+                  <span className="social-mark" aria-hidden="true">
+                    {getSocialMark(link.name)}
+                  </span>
+                  <span>
+                    <strong>{link.name}</strong>
+                    <small>{link.description}</small>
+                  </span>
+                </a>
+              ))}
+            </div>
+          </section>
         </section>
       </div>
     </main>
   );
+}
+
+function getSocialMark(name: string): string {
+  if (name === "小红书") return "小";
+  if (name === "哔哩哔哩") return "B";
+  return name.slice(0, 1);
 }
 
 function SaveBadge({ errorText, saveState }: { errorText: string; saveState: SaveState }) {

@@ -11,6 +11,8 @@ export default defineConfig({
     host_permissions: [
       "https://x.com/*",
       "https://twitter.com/*",
+      "https://pbs.twimg.com/*",
+      "https://video.twimg.com/*",
       "https://creator.xiaohongshu.com/*",
       "https://mp.weixin.qq.com/*",
     ],
