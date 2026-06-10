@@ -6,7 +6,7 @@ import "./style.css";
 
 const root = document.getElementById("root");
 if (!root) {
-  throw new Error("Gutchain popup root element was not found.");
+  throw new Error("Gutchain options root element was not found.");
 }
 
 createRoot(root).render(

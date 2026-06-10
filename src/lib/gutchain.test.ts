@@ -4,8 +4,10 @@ import {
   buildXhsBody,
   buildXhsTitle,
   clampRectToViewport,
+  DEFAULT_GUTCHAIN_SETTINGS,
   isSupportedXStatusUrl,
   mapCssRectToImageCrop,
+  normalizeGutchainSettings,
 } from "./gutchain";
 import {
   buildWechatStickerFilename,
@@ -42,6 +44,28 @@ describe("gutchain helpers", () => {
         includeAuthorInBody: false,
       }),
     ).toBe("Hello world\nsecond line");
+  });
+
+  it("normalizes saved settings with defaults and valid frame presets", () => {
+    const invalidSettings = {
+      includeAuthorInBody: false,
+      screenshotFramePreset: "unknown",
+    };
+
+    expect(normalizeGutchainSettings(undefined)).toEqual(DEFAULT_GUTCHAIN_SETTINGS);
+    expect(
+      normalizeGutchainSettings({
+        includeAuthorInBody: false,
+        screenshotFramePreset: "wechat",
+      }),
+    ).toEqual({
+      includeAuthorInBody: false,
+      screenshotFramePreset: "wechat",
+    });
+    expect(normalizeGutchainSettings(invalidSettings)).toEqual({
+      includeAuthorInBody: false,
+      screenshotFramePreset: "clean",
+    });
   });
 
   it("clamps the tweet rect to the visible viewport", () => {

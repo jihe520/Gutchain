@@ -43,12 +43,18 @@ export interface GutchainSharePayload {
   createdAt: number;
 }
 
+export const GUTCHAIN_FRAME_PRESET_IDS = ["clean", "xhs", "wechat", "ink"] as const;
+
+export type GutchainFramePresetId = (typeof GUTCHAIN_FRAME_PRESET_IDS)[number];
+
 export interface GutchainSettings {
   includeAuthorInBody: boolean;
+  screenshotFramePreset: GutchainFramePresetId;
 }
 
 export const DEFAULT_GUTCHAIN_SETTINGS: GutchainSettings = {
   includeAuthorInBody: true,
+  screenshotFramePreset: "clean",
 };
 
 export interface CreateGutchainPayloadOptions {
@@ -97,7 +103,7 @@ export function buildXhsBody(
   tweetText: string,
   authorName: string,
   authorHandle: string,
-  settings: GutchainSettings = DEFAULT_GUTCHAIN_SETTINGS,
+  settings: Pick<GutchainSettings, "includeAuthorInBody"> = DEFAULT_GUTCHAIN_SETTINGS,
 ): string {
   const normalizedText = normalizeMultilineText(tweetText);
   const normalizedAuthorName = normalizeText(authorName);
@@ -116,6 +122,29 @@ export function normalizeAuthorHandle(handle: string): string {
   const normalized = normalizeText(handle);
   if (!normalized) return "";
   return normalized.startsWith("@") ? normalized : `@${normalized}`;
+}
+
+export function normalizeGutchainSettings(settings: unknown): GutchainSettings {
+  const candidate =
+    typeof settings === "object" && settings !== null
+      ? (settings as Record<string, unknown>)
+      : undefined;
+
+  return {
+    includeAuthorInBody:
+      typeof candidate?.includeAuthorInBody === "boolean"
+        ? candidate.includeAuthorInBody
+        : DEFAULT_GUTCHAIN_SETTINGS.includeAuthorInBody,
+    screenshotFramePreset: isGutchainFramePresetId(candidate?.screenshotFramePreset)
+      ? candidate.screenshotFramePreset
+      : DEFAULT_GUTCHAIN_SETTINGS.screenshotFramePreset,
+  };
+}
+
+export function isGutchainFramePresetId(value: unknown): value is GutchainFramePresetId {
+  return (
+    typeof value === "string" && (GUTCHAIN_FRAME_PRESET_IDS as readonly string[]).includes(value)
+  );
 }
 
 export function clampRectToViewport(rect: Rect, viewport: ViewportSize): Rect | null {
@@ -159,7 +188,7 @@ export function createGutchainPayload(
   screenshotSize: ImageSize,
   options: CreateGutchainPayloadOptions = {},
 ): GutchainSharePayload {
-  const settings = options.settings ?? DEFAULT_GUTCHAIN_SETTINGS;
+  const settings = normalizeGutchainSettings(options.settings);
 
   return {
     id: createShareId(),

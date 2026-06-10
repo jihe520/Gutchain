@@ -30,6 +30,7 @@ button {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
 }
 
 .eyebrow {
@@ -88,6 +89,24 @@ h1 {
   background: #c9c8c4;
   color: #70706c;
   cursor: not-allowed;
+}
+
+.settings-button {
+  min-height: 30px;
+  flex: 0 0 auto;
+  border: 1px solid #d7d3c8;
+  border-radius: 8px;
+  background: #fffdf8;
+  color: #4d4433;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 750;
+  padding: 0 10px;
+}
+
+.settings-button:hover {
+  border-color: #b8ad94;
+  background: #fff7e8;
 }
 
 .setting-row {
