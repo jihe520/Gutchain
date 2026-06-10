@@ -49,6 +49,18 @@ const FRAME_PRESETS: FramePreset[] = [
   },
 ];
 
+const EYEBROW_CLASS = "mb-[5px] text-xs font-extrabold leading-none text-[#6f5c35] uppercase";
+const HEADING_CLASS = "m-0 font-[820] text-[#171717]";
+const SAVE_BADGE_CLASS =
+  "inline-flex min-h-7 items-center whitespace-nowrap rounded-full border px-2.5 text-xs font-[780]";
+
+const SAVE_BADGE_CLASS_BY_STATE: Record<SaveState, string> = {
+  idle: "border-[#dcd8ce] bg-[#fffdf8] text-[#5d574a]",
+  saving: "border-[#e9cf88] bg-[#fff3d8] text-[#624507]",
+  saved: "border-[#aad7b5] bg-[#dcf3e1] text-[#176330]",
+  error: "border-[#f1b5b2] bg-[#fde2e1] text-[#8a1f1b]",
+};
+
 export function App() {
   const [settings, setSettings] = useState<GutchainSettings>(DEFAULT_GUTCHAIN_SETTINGS);
   const [saveState, setSaveState] = useState<SaveState>("idle");
@@ -115,41 +127,46 @@ export function App() {
   }
 
   return (
-    <main className="options-shell">
-      <header className="topbar">
-        <div className="brand">
-          <img alt="" className="brand-mark" src="/icon/48.png" />
+    <main className="min-h-screen bg-[#f7f7f4] p-7 text-[#121417] max-[820px]:p-[18px]">
+      <header className="mx-auto mb-7 flex max-w-[1100px] items-center justify-between gap-6 max-[820px]:mb-[22px] max-[820px]:flex-col max-[820px]:items-start">
+        <div className="flex min-w-0 items-center gap-3">
+          <img alt="" className="size-[46px] rounded-lg" src="/icon/48.png" />
           <div>
-            <p className="eyebrow">Gutchain</p>
-            <h1>Settings</h1>
+            <p className={EYEBROW_CLASS}>Gutchain</p>
+            <h1 className={`${HEADING_CLASS} text-[30px] leading-[1.05]`}>Settings</h1>
           </div>
         </div>
-        <a className="official-link" href="https://gutchain.fun" rel="noreferrer" target="_blank">
+        <a
+          className="inline-flex min-h-9 items-center justify-center rounded-lg border border-[#d7d3c8] bg-[#fffdf8] px-3 text-[13px] font-[780] text-[#3f392e] no-underline transition-colors hover:border-[#b8ad94] hover:bg-[#fff7e8]"
+          href="https://gutchain.fun"
+          rel="noreferrer"
+          target="_blank"
+        >
           gutchain.fun
         </a>
       </header>
 
-      <div className="settings-layout">
-        <section className="preview-workbench" aria-label="Selected screenshot frame">
-          <div className="section-heading">
+      <div className="mx-auto grid max-w-[1100px] grid-cols-[minmax(420px,1fr)_360px] gap-6 max-[820px]:grid-cols-1">
+        <section className="min-w-0" aria-label="Selected screenshot frame">
+          <div className="mb-3.5 flex min-h-11 items-start justify-between gap-4">
             <div>
-              <p className="eyebrow">Preview</p>
-              <h2>{selectedPreset.name}</h2>
+              <p className={EYEBROW_CLASS}>Preview</p>
+              <h2 className={`${HEADING_CLASS} text-xl leading-[1.1]`}>{selectedPreset.name}</h2>
             </div>
             <SaveBadge errorText={errorText} saveState={saveState} />
           </div>
           <FramePreview preset={selectedPreset} />
         </section>
 
-        <section className="controls" aria-label="Gutchain settings">
-          <div className="section-heading">
+        <section className="min-w-0" aria-label="Gutchain settings">
+          <div className="mb-3.5 flex min-h-11 items-start justify-between gap-4">
             <div>
-              <p className="eyebrow">Frame</p>
-              <h2>Presets</h2>
+              <p className={EYEBROW_CLASS}>Frame</p>
+              <h2 className={`${HEADING_CLASS} text-xl leading-[1.1]`}>Presets</h2>
             </div>
           </div>
 
-          <fieldset className="preset-grid">
+          <fieldset className="m-0 grid gap-3 border-0 p-0">
             <legend className="sr-only">Screenshot frame preset</legend>
             {FRAME_PRESETS.map((preset) => {
               const isSelected = preset.id === settings.screenshotFramePreset;
@@ -178,9 +195,10 @@ export function App() {
             })}
           </fieldset>
 
-          <label className="option-row">
+          <label className="mt-[18px] flex min-h-11 items-center gap-2.5 rounded-lg border border-[#dedbd2] bg-[#fffdf8] px-3 text-sm font-[720] text-[#34342f]">
             <input
               checked={settings.includeAuthorInBody}
+              className="m-0 size-4 accent-[#e42d48]"
               onChange={(event) => toggleAuthorInBody(event.currentTarget.checked)}
               type="checkbox"
             />
@@ -201,7 +219,10 @@ function SaveBadge({ errorText, saveState }: { errorText: string; saveState: Sav
   };
 
   return (
-    <span className={`save-badge save-badge-${saveState}`} aria-live="polite">
+    <span
+      className={`${SAVE_BADGE_CLASS} ${SAVE_BADGE_CLASS_BY_STATE[saveState]}`}
+      aria-live="polite"
+    >
       {textByState[saveState]}
     </span>
   );
