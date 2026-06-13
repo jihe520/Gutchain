@@ -31,3 +31,9 @@
 3. 打开 Chrome，地址栏输入 `chrome://extensions`，回车
 4. 打开右上角 **开发者模式**
 5. 点击 **加载已解压的扩展程序**，选择解压后的文件夹
+
+## Reference & Thanks
+
+https://linux.do/
+
+
