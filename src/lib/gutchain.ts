@@ -30,6 +30,14 @@ export interface TweetCaptureSnapshot {
   viewport: ViewportSize;
 }
 
+export interface TweetDomRenderResult {
+  snapshot: TweetCaptureSnapshot;
+  imageDataUrl: string;
+  imageSize: ImageSize;
+}
+
+export type GutchainCaptureSource = "dom" | "screenshot";
+
 export interface GutchainSharePayload {
   id: string;
   tweetText: string;
@@ -38,6 +46,7 @@ export interface GutchainSharePayload {
   screenshotDataUrl: string;
   cropRect: Rect;
   screenshotSize: ImageSize;
+  captureSource?: GutchainCaptureSource;
   xhsTitle: string;
   xhsBody: string;
   createdAt: number;
@@ -58,6 +67,7 @@ export const DEFAULT_GUTCHAIN_SETTINGS: GutchainSettings = {
 };
 
 export interface CreateGutchainPayloadOptions {
+  captureSource?: GutchainCaptureSource;
   settings?: GutchainSettings;
 }
 
@@ -190,7 +200,7 @@ export function createGutchainPayload(
 ): GutchainSharePayload {
   const settings = normalizeGutchainSettings(options.settings);
 
-  return {
+  const payload: GutchainSharePayload = {
     id: createShareId(),
     tweetText: normalizeMultilineText(snapshot.text),
     authorName: normalizeText(snapshot.authorName),
@@ -202,6 +212,12 @@ export function createGutchainPayload(
     xhsBody: buildXhsBody(snapshot.text, snapshot.authorName, snapshot.authorHandle, settings),
     createdAt: Date.now(),
   };
+
+  if (options.captureSource) {
+    payload.captureSource = options.captureSource;
+  }
+
+  return payload;
 }
 
 function createShareId(): string {

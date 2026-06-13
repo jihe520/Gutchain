@@ -7,6 +7,7 @@ import {
   normalizeGutchainSettings,
   type Rect,
   type TweetCaptureSnapshot,
+  type TweetDomRenderResult,
 } from "../src/lib/gutchain";
 import {
   GUTCHAIN_MESSAGE,
@@ -143,6 +144,21 @@ async function captureActiveTweetPayload() {
     throw new Error("Please open an X/Twitter post detail page first.");
   }
 
+  const settings = await getGutchainSettings();
+  const domCapture = await renderTweetDomImage(tab.id);
+
+  if (domCapture) {
+    const framed = await frameScreenshotDataUrl(
+      domCapture.imageDataUrl,
+      settings.screenshotFramePreset,
+    );
+
+    return createGutchainPayload(domCapture.snapshot, framed.dataUrl, framed.size, {
+      captureSource: "dom",
+      settings,
+    });
+  }
+
   const snapshot = await collectTweetSnapshot(tab.id);
 
   if (!snapshot?.visibleRect || !snapshot.viewport) {
@@ -152,7 +168,6 @@ async function captureActiveTweetPayload() {
   const fullScreenshotDataUrl = await browser.tabs.captureVisibleTab(tab.windowId, {
     format: "png",
   });
-  const settings = await getGutchainSettings();
   const cropped = await cropScreenshotDataUrl(
     fullScreenshotDataUrl,
     snapshot.visibleRect,
@@ -161,6 +176,7 @@ async function captureActiveTweetPayload() {
   const framed = await frameScreenshotDataUrl(cropped.dataUrl, settings.screenshotFramePreset);
 
   return createGutchainPayload(snapshot, framed.dataUrl, framed.size, {
+    captureSource: "screenshot",
     settings,
   });
 }
@@ -223,6 +239,20 @@ async function collectTweetSnapshot(tabId: number): Promise<TweetCaptureSnapshot
   }
 
   return result.result as TweetCaptureSnapshot;
+}
+
+async function renderTweetDomImage(tabId: number): Promise<TweetDomRenderResult | null> {
+  try {
+    const result = (await browser.tabs.sendMessage(tabId, {
+      type: GUTCHAIN_MESSAGE.X_RENDER_TWEET_IMAGE,
+    })) as TweetDomRenderResult | undefined;
+
+    if (result?.imageDataUrl && result.imageSize) return result;
+  } catch {
+    // Existing tabs may not have the new content script yet, or DOM rendering can fail on media.
+  }
+
+  return null;
 }
 
 function collectVisibleTweetSnapshotInPage(): TweetCaptureSnapshot {

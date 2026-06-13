@@ -11,6 +11,7 @@ export const GUTCHAIN_MESSAGE = {
   POPUP_SHARE_TO_XHS: "gutchain.popup.shareToXhs",
   POPUP_SHARE_TO_WECHAT: "gutchain.popup.shareToWechat",
   X_COLLECT_TWEET: "gutchain.x.collectTweet",
+  X_RENDER_TWEET_IMAGE: "gutchain.x.renderTweetImage",
 } as const;
 
 export interface PopupStateResponse {

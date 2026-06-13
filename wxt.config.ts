@@ -1,3 +1,4 @@
+import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "wxt";
 
@@ -10,6 +11,8 @@ export default defineConfig({
     host_permissions: [
       "https://x.com/*",
       "https://twitter.com/*",
+      "https://pbs.twimg.com/*",
+      "https://video.twimg.com/*",
       "https://creator.xiaohongshu.com/*",
       "https://mp.weixin.qq.com/*",
     ],
@@ -32,6 +35,6 @@ export default defineConfig({
     },
   },
   vite: () => ({
-    plugins: [react()],
+    plugins: [tailwindcss(), react()],
   }),
 });

@@ -1,12 +1,10 @@
+@import "tailwindcss";
+
 :root {
   color: #121417;
   background: #f7f7f4;
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-}
-
-* {
-  box-sizing: border-box;
 }
 
 body {
@@ -16,142 +14,4 @@ body {
 
 button {
   font: inherit;
-}
-
-.popup {
-  display: flex;
-  min-height: 242px;
-  flex-direction: column;
-  gap: 14px;
-  padding: 18px;
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.eyebrow {
-  margin: 0 0 4px;
-  color: #6f5c35;
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1;
-  text-transform: uppercase;
-}
-
-h1 {
-  margin: 0;
-  color: #171717;
-  font-size: 21px;
-  font-weight: 800;
-  line-height: 1.1;
-}
-
-.action-stack {
-  display: grid;
-  gap: 10px;
-}
-
-.share-button {
-  display: inline-flex;
-  min-height: 42px;
-  align-items: center;
-  justify-content: center;
-  border: 0;
-  border-radius: 8px;
-  background: #e42d48;
-  color: white;
-  cursor: pointer;
-  font-size: 15px;
-  font-weight: 750;
-}
-
-.share-button.primary {
-  background: #e42d48;
-}
-
-.share-button.primary:hover:not(:disabled) {
-  background: #c91f3a;
-}
-
-.share-button.wechat {
-  background: #147a45;
-}
-
-.share-button.wechat:hover:not(:disabled) {
-  background: #0f6739;
-}
-
-.share-button:disabled {
-  background: #c9c8c4;
-  color: #70706c;
-  cursor: not-allowed;
-}
-
-.settings-button {
-  min-height: 30px;
-  flex: 0 0 auto;
-  border: 1px solid #d7d3c8;
-  border-radius: 8px;
-  background: #fffdf8;
-  color: #4d4433;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 750;
-  padding: 0 10px;
-}
-
-.settings-button:hover {
-  border-color: #b8ad94;
-  background: #fff7e8;
-}
-
-.setting-row {
-  display: flex;
-  min-height: 28px;
-  align-items: center;
-  gap: 8px;
-  color: #3a3a37;
-  font-size: 13px;
-  font-weight: 650;
-}
-
-.setting-row input {
-  width: 16px;
-  height: 16px;
-  margin: 0;
-  accent-color: #e42d48;
-}
-
-.setting-row:has(input:disabled) {
-  color: #898985;
-}
-
-.status {
-  min-height: 38px;
-  margin: 0;
-  border-radius: 8px;
-  padding: 10px;
-  background: #efefea;
-  color: #343434;
-  font-size: 13px;
-  line-height: 1.35;
-}
-
-.status-working {
-  background: #fff3d8;
-  color: #624507;
-}
-
-.status-success {
-  background: #dcf3e1;
-  color: #176330;
-}
-
-.status-error {
-  background: #fde2e1;
-  color: #8a1f1b;
 }
