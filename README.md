@@ -10,6 +10,23 @@
 
 ---
 
+
+
+> check out my new project
+> 
+> 我正在构建一个社交媒体运营 Agent , 欢迎关注
+> 
+> https://gutchain.fun/
+> 
+> my x will record my update : https://x.com/EqbymCi
+>
+> thanks
+
+---
+
+
+
+
 ## What It Does?
 
 刷 X 看到好内容想搬到小红书？点一下 Gutchain 按钮——它会自动截取推文图片、提取正文，然后帮你填入小红书创作页面。你只需要点发布。
